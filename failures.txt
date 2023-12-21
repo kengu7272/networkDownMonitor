@@ -1,7 +1,0 @@
-Network test started at 2023-12-20 20:59:21 EST
-
-LAN failure at 2023-12-20 20:59:27 EST
-Down for about 9 seconds
-
-Network test ended at 2023-12-20 20:59:38 EST
-
