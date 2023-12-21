@@ -37,8 +37,6 @@ defaultGateway = getDefaultGateway()
 with open('pingLocations.txt', 'r') as locationsFile:
     locations = [line.strip() for line in locationsFile.readlines()]
 
-locations = ["1.1.212"]
-
 try:
     while(True):
         for server in range(len(locations)):
