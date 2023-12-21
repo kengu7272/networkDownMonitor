@@ -29,9 +29,8 @@ def timestampToDatetime(timestamp):
     dto = datetime.fromtimestamp(timestamp, get_localzone())
     return dto.strftime('%Y-%m-%d %H:%M:%S %Z')
 
-timeFailed = 0
-lastFailed = None
 start = time.time()
+writeOutput(f"Network test started at {timestampToDatetime(start)}\n\n")
 defaultGateway = getDefaultGateway()
 
 with open('pingLocations.txt', 'r') as locationsFile:
@@ -81,5 +80,6 @@ try:
             time.sleep(PING_INTERVAL)
 except KeyboardInterrupt:
     print(f"User stopped program - Program ran for {int(time.time() - start)} seconds")
+    writeOutput(f"Network test ended at {timestampToDatetime(time.time())}\n\n")
 
         
