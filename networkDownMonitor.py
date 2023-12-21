@@ -1,6 +1,9 @@
 import netifaces
 import time
 from ping3 import ping as p
+import os
+from datetime import datetime
+from tzlocal import get_localzone
 
 PING_INTERVAL = 5 # This is in seconds
 FAILURE = 0.2 # This is in seconds
@@ -18,25 +21,34 @@ def ping(host):
     
     return False
 
+def writeOutput(text):
+    with open('failures.txt', 'a') as output:
+        output.write(text)
+
+def timestampToDatetime(timestamp):
+    dto = datetime.fromtimestamp(timestamp, get_localzone())
+    return dto.strftime('%Y-%m-%d %H:%M:%S %Z')
+
 timeFailed = 0
 lastFailed = None
 start = time.time()
-
 defaultGateway = getDefaultGateway()
 
-locationsFile = open('pingLocations.txt', 'r')
-locations = locationsFile.readlines()
+with open('pingLocations.txt', 'r') as locationsFile:
+    locations = [line.strip() for line in locationsFile.readlines()]
+
+locations = ["1.1.212"]
 
 try:
     while(True):
         for server in range(len(locations)):
-            ms = ping(locations[server])
+            ms = ping(locations[server].strip())
 
             if(not ms):
                 up = False
 
                 for i in range(len(locations)):
-                    if(ping(locations[i])):
+                    if(ping(locations[i].strip())):
                         up = True
 
                 if(not up):
@@ -46,21 +58,30 @@ try:
 
                     # if connection to default gateway is not found (LAN failure)
                     if(not p(defaultGateway)):
-                        print("LAN is down - no connection to default gateway")
+                        writeOutput(f"LAN failure at {timestampToDatetime(failStart)}\n")                       
+                        print("LAN is down - no connection to default gateway ")
+
                         while(not ping(defaultGateway)):
                             pass
+
                         elapsed = time.time() - failStart
+                        writeOutput(f"Down for about {int(elapsed)} seconds\n\n")
                     else:
+                        writeOutput(f"WAN failure at {timestampToDatetime(failStart)}\n")
+                        print("WAN failure, can't connect to any servers")
+
                         while(not ms):
                             for i in range(len(locations)):
-                                ms = ping(locations[i])
+                                ms = ping(locations[i].strip())
+
                         elapsed = time.time() - failStart
+                        writeOutput(f"Down for about {int(elapsed)} seconds\n\n")
 
-                    print(f"Network back up, down for {elapsed} seconds")
 
-            print(f"Ping to {locations[server]} took {round(ms * 1000, 0)}ms")
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(f"Network is up")
             time.sleep(PING_INTERVAL)
 except KeyboardInterrupt:
-    print("User stopped program")
+    print(f"User stopped program - Program ran for {int(time.time() - start)} seconds")
 
         
