@@ -14,12 +14,16 @@ def getDefaultGateway():
     return defaultGateway
 
 def ping(host):
-    result = p(host, timeout = FAILURE)
+    try: 
+        result = p(host, timeout = FAILURE)
 
-    if result is not None:
-        return result
+        if result is not None:
+            return result
+        
+        return False
+    except:
+        return False
     
-    return False
 
 def writeOutput(text):
     with open('failures.txt', 'a') as output:
@@ -54,7 +58,7 @@ try:
                     elapsed = None
 
                     # if connection to default gateway is not found (LAN failure)
-                    if(not p(defaultGateway)):
+                    if(not ping(defaultGateway)):
                         writeOutput(f"LAN failure at {timestampToDatetime(failStart)}\n")                       
                         print("LAN is down - no connection to default gateway ")
 
